@@ -66,24 +66,62 @@ function modelReady() {
 	});
 }
 
+function keyIsDown() {
+  if (keyCode === LEFT_ARROW) {
+    x = x - 4;
+  } else if (keyCode === RIGHT_ARROW) {
+    x = x + 4;
+  } else if (keyCode === UP_ARROW) {
+  	y = y - 4;
+  } else if (keyCode === DOWN_ARROW) {
+  	if (y < height) {
+	   y = y + 4;
+		}
+  }
+}
+
 function draw() {
 	background('white');
 	fill('coral');
 	noStroke();
-	ellipse(x, y, 36);
+	ellipse(x, y, 40);
 	console.log(label)
-	if (label == 'left') {
-		x = x - 4;
-	} else if (label == 'right') {
-		x = x + 4;
-	} else if (label == 'up') {
-		y = y - 4;
-	} else if (label == 'down') {
-		if (y < height) {
-			y = y + 4;
-		}
+	// if (label == 'left') {
+	// 	if (x > 0) {
+	// 		x = x - 4;
+	// 	}
+	// } else if (label == 'right') {
+	// 	  if (x < width) {
+	// 			x = x + 4;
+	// 	  }
+	// } else if (label == 'up') {
+	// 	if (y > 0) {
+	// 		y = y - 4;
+	// 	}
+	// } else if (label == 'down') {
+	// 	if (y < height) {
+	// 		y = y + 4;
+	// 	}
 
-	}
+	// }
+	if (keyIsDown(LEFT_ARROW)) {
+		if ( x > 0) {
+	    x = x - 4;			
+		}
+  } else if (keyIsDown(RIGHT_ARROW)) {
+    if (x < width) {
+	    x = x + 4;
+    }
+  } else if (keyIsDown(UP_ARROW)) {
+  	if (y > 0) {
+	  	y = y - 4;  		
+  	}
+  } else if (keyIsDown(DOWN_ARROW)) {
+  	if (y < height) {
+	   y = y + 4;
+		}
+  }
+
 
 
 }

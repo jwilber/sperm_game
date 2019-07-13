@@ -1,0 +1,13 @@
+@import url('https://fonts.googleapis.com/css?family=Gaegu');
+
+body {
+	font-family: 'Gaegu';
+	font-size: 1.5rem;
+	letter-spacing: 3px;
+	margin: 0;
+	padding: 0;
+}
+
+h1 {
+	padding-left: 10rem;
+}
