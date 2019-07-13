@@ -2,12 +2,51 @@
 
 body {
 	font-family: 'Gaegu';
-	font-size: 1.5rem;
-	letter-spacing: 3px;
+	background-color: #fff2f4;
+	justify-content: center;
+	align-items: center;
 	margin: 0;
-	padding: 0;
+	text-transform: uppercase;
 }
 
 h1 {
-	padding-left: 10rem;
+	font-size: 1.5rem;
+	letter-spacing: 5px;
+	text-transform: uppercase;
 }
+
+p {
+	font-size: 1rem;
+	font-weight: bold;
+}
+
+canvas {
+  border: 2px solid pink;
+  border-radius: 15px;
+  padding: 0;
+  margin: auto;
+  display: block;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+#game-container {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+.directions { 
+	max-width: 50%;
+}
+
+#directs {
+	text-align: left;
+	max-width: 75%;
+	margin-top: 0px;
+}
+
+
