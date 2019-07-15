@@ -54,15 +54,15 @@ function runGame() {
 }
 
 function setup() {
-	w = windowWidth / 2;
+	w = (windowWidth / 2) * .95;
 	h = windowHeight * .75;
 	let gameCanvas = createCanvas(w, h);
 	gameCanvas.parent("game-container");
 	frameRate(30);
 	video = createCapture(VIDEO);
-	video.size(600, 400);
+	video.size(w*.75, h*.75);
 	video.parent('video-container');
-	video.hide();
+	// video.hide();
 
 	poseNet = ml5.poseNet(video, modelReady);
 	poseNet.on('pose', gotPoses)
@@ -163,7 +163,7 @@ function draw() {
 
       // if collision, bounce off each other
       if (distance < minDist) {
-      	alert('Looks like you were wiped out by the birth control. <br />Better luck next time!')
+      	alert('Looks like you were wiped out by the birth control :( <br /><br /> Better luck next time!')
       	// log time so we can accurately reset game w/o browse refresh
       	prevNumSeconds += numSeconds;
       	runGame();
