@@ -1,3 +1,4 @@
+// use to create n sperm cells
 function duplicateElements(array, times) {
   return array.reduce((res, current) => {
       return res.concat(Array(times).fill(current));
@@ -25,7 +26,8 @@ window.addEventListener('keyup',
 false);
 
 
-// alert button (https://stackoverflow.com/questions/7853130/how-to-change-the-style-of-alert-box)
+// custom alert button for game over
+// (https://stackoverflow.com/questions/7853130/how-to-change-the-style-of-alert-box)
 var ALERT_TITLE = "GAME OVER";
 var ALERT_BUTTON_TEXT = "REPLAY";
 
