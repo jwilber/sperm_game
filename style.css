@@ -2,7 +2,7 @@
 
 body {
 	font-family: 'Gaegu';
-	background-color: #fff2f4;
+	background-color: #ffdfe5;
 	justify-content: center;
 	align-items: center;
 	margin: 0;
@@ -11,7 +11,7 @@ body {
 
 h1 {
 	font-size: 1.5rem;
-	letter-spacing: 5px;
+	letter-spacing: 10px;
 	text-transform: uppercase;
 }
 
@@ -49,4 +49,71 @@ canvas {
 	margin-top: 0px;
 }
 
+.thanks {
+	font-size: .85rem;
+	font-weight: 10;
+}
 
+
+/*##################################################################*/
+/*ALERT BOX RULES*/
+/*##################################################################*/
+#modalContainer {
+    background-color:rgba(0, 0, 0, 0.3);
+    position:absolute;
+    width:100%;
+    height:100%;
+    top:0px;
+    left:0px;
+    z-index:10000;
+}
+
+#alertBox {
+    position:relative;
+    width:40%;
+    min-height: 30%;
+    margin-top: 10%;
+    border:1px solid #666;
+    background-color:#fff;
+    background-repeat:no-repeat;
+    background-position:20px 30px;
+    text-align: center;
+}
+
+#modalContainer > #alertBox {
+    position:fixed;
+}
+
+#alertBox h1 {
+    margin: 0;
+    font: bold 2rem 'Gaegu',arial;
+    background-color: #ffc0cb;
+    color: #fff8f9;
+    padding: 2px 0 2px 5px;
+}
+
+#alertBox p {
+    font: .9rem 'Gaegu',arial;
+    height: 50px;
+    text-align: center;
+}
+
+#alertBox #closeBtn {
+    display:block;
+    position:relative;
+    margin:5px auto;
+    padding:7px;
+    border:0 none;
+    width:70px;
+    font: 1.5rem 'Gaegu',arial;
+    text-transform: uppercase;
+    text-align: center;
+    color:#fff8f9;
+    background-color:#ffc0cb;
+    border-radius: .5rem;
+    text-decoration: none;
+}
+
+/*##################################################################*/
+/*END ALERT BOX RULES*/
+/*##################################################################*/

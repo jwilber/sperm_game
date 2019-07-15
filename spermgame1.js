@@ -3,46 +3,61 @@ let x,y;
 let label = '';
 let spring = 0.025;
 let mainSperm;
-let sperm1, sperm2;
-let sperms = [];
-
+let sperm;
+let spermObjects = [];
+let antiSpermObjects = [];
+let spermArray = [];
+let condoms;
 let video;
 let features;
 let knn;
 let labelP;
 let ready = false;
-let numImgs = 250;
+let numImgs = 500;
+let numSeconds;
 
 function preload() {
-	sperm2 = loadImage('newsperm2.png');
-	console.log('sperm2', sperm2)
+	sperm = loadImage('newsperm2.png');
+	condoms = loadImage('900.jpg');
 }
 
 
 function setup() {
-	let gameCanvas = createCanvas(800, 400);
+	let gameCanvas = createCanvas(windowWidth/1.2, windowHeight * .75);
 	gameCanvas.parent("game-container");
-	video = createCapture(VIDEO);
-	video.size(600, 400);
-	video.parent('video-container');
+	frameRate(30);
+	// video = createCapture(VIDEO);
+	// video.size(600, 400);
+	// video.parent('video-container');
 
 	// main sperm image
-	let imgArray = duplicateElements([sperm2], numImgs);
-	console.log(imgArray);
+	spermArray = duplicateElements([sperm], numImgs);
+	console.log(spermArray);
 	for (let i = 0; i < numImgs; i++) {
-          sperms[i] = new SpermCell(
-            imgArray[i],
+          spermObjects[i] = new SpermCell(
+            spermArray[i],
             random(width),
             random(height),
-            random(30, 70),
             i,
-            sperms
+            spermObjects,
+            antiSpermObjects
           );
-        }
+    };
+
+    antiSpermObjects[0] = new BirthControl(
+            condoms,
+            random(width),
+            random(height),
+            1,
+            antiSpermObjects,
+            2	
+    	)
+
+
 
     // load main image after so it's on top
     mainSperm = loadImage('newsperm.png');	
-
+    console.log('mainSperm', mainSperm)
 	// video.hide();
 	features = ml5.featureExtractor("MobileNet", modelReady);
 	// knn = ml5.KNNClassifier();
@@ -98,13 +113,19 @@ function modelReady() {
 
 
 function draw() {
-	background('#ffd9df');
+	background('#ffecef');
 	console.log(label)
-	sperms.forEach(jared => {
-        jared.collide();
-        jared.move();
-        jared.display();
+	spermObjects.forEach(obj => {
+        obj.collide();
+        obj.move();
+        obj.display();
       });
+	antiSpermObjects.forEach(obj => {
+		obj.move();
+		obj.display();
+	})
+	numSeconds = frameCount / 30;
+
 	image(mainSperm, x, y, 40, 80);
 
 	// if (label == 'left') {
@@ -128,20 +149,36 @@ function draw() {
 	if (keyIsDown(LEFT_ARROW)) {
 		if ( x > 0) {
 	    x = x - 6;			
-		}
-  } else if (keyIsDown(RIGHT_ARROW)) {
-    if (x < width - 40) {
-	    x = x + 6;
-    }
-  } else if (keyIsDown(UP_ARROW)) {
-  	if (y > 3) {
-	  	y = y - 6;  		
-  	}
-  } else if (keyIsDown(DOWN_ARROW)) {
-  	if (y < height - 55) {
-	   y = y + 6;
-		}
+	}
+	  } else if (keyIsDown(RIGHT_ARROW)) {
+	    if (x < width - 40) {
+		    x = x + 6;
+	    }
+	  } else if (keyIsDown(UP_ARROW)) {
+	  	if (y > 3) {
+		  	y = y - 6;  		
+	  	}
+	  } else if (keyIsDown(DOWN_ARROW)) {
+	  	if (y < height - 55) {
+		   y = y + 6;
+			}
   }
+  // handle birth control overlap case
+    for (let i = 0; i < antiSpermObjects.length; i++) {
+      // get distance from this node to all oters
+
+      let dx = antiSpermObjects[i].x - x;
+      let dy = antiSpermObjects[i].y - y;
+      let distance = sqrt(dx * dx + dy * dy);
+
+      // set distance threshold
+      let minDist = antiSpermObjects[i].diameter;
+
+      // if collision, bounce off each other
+      if (distance < minDist) {
+      	alert('Game Over')
+      }
+    }
 
 
 
@@ -150,15 +187,16 @@ function draw() {
 class SpermCell {
 
   // set attributes
-  constructor(img, xIndex, yIndex, din, idin, oin) {
+  constructor(img, xIndex, yIndex, index, others, bc) {
     this.img = img;
     this.x = xIndex;
     this.y = yIndex;
     this.xVelocity = .5;
     this.yVelocity = 1.5;
     this.diameter = 25;
-    this.id = idin;
-    this.others = oin;
+    this.id = index;
+    this.others = others;
+    this.bc = bc;
     this.dead = false;
   }
 
@@ -166,11 +204,18 @@ class SpermCell {
   	if (this.dead === true) {
   		// do nothing
   	} else {
+  		// handle sperm overlap case
 	    for (let i = this.id + 1; i < numImgs; i++) {
+	      // get distance from this node to all oters
+
 	      let dx = this.others[i].x - this.x;
 	      let dy = this.others[i].y - this.y;
 	      let distance = sqrt(dx * dx + dy * dy);
-	      let minDist = this.others[i].diameter / 2 + this.diameter / 2;
+
+	      // set distance threshold
+	      let minDist = this.diameter;
+
+	      // if collision, bounce off each other
 	      if (distance < minDist) {
 	        let angle = atan2(dy, dx);
 	        let targetX = this.x + cos(angle) * minDist;
@@ -181,8 +226,32 @@ class SpermCell {
 	        this.yVelocity -= ay;
 	        this.others[i].xVelocity += ax;
 	        this.others[i].yVelocity += ay;
-	        console.log(this)
 	        // this.dead = true;
+	      }
+	    }
+	    // handle birth control overlap case
+	    for (let i = 0; i < antiSpermObjects.length; i++) {
+	      // get distance from this node to all oters
+
+	      let dx = this.bc[i].x - this.x;
+	      let dy = this.bc[i].y - this.y;
+	      let distance = sqrt(dx * dx + dy * dy);
+
+	      // set distance threshold
+	      let minDist = this.bc[i].diameter;
+
+	      // if collision, bounce off each other
+	      if (distance < minDist) {
+	        let angle = atan2(dy, dx);
+	        let targetX = this.x + cos(angle) * minDist;
+	        let targetY = this.y + sin(angle) * minDist;
+	        let ax = (targetX - this.others[i].x) * spring;
+	        let ay = (targetY - this.others[i].y) * spring;
+	        this.xVelocity -= ax;
+	        this.yVelocity -= ay;
+	        this.others[i].xVelocity += ax;
+	        this.others[i].yVelocity += ay;
+	        this.dead = true;
 	      }
 	    }
   	}
@@ -254,3 +323,69 @@ window.addEventListener('keyup',
         keys[e.keyCode] = false;
     },
 false);
+
+
+class BirthControl {
+  // set attributes
+  constructor(img, xIndex, yIndex, index, others, delay) {
+    this.img = img;
+    this.x = xIndex;
+    this.y = yIndex;
+    this.xVelocity = 5;
+    this.yVelocity = 1.5;
+    this.diameter = 25;
+    this.delay = delay;
+    this.id = index;
+    this.others = others;
+    this.dead = false;
+  }
+
+  collide() {
+ 
+  }
+
+  move() {
+  	if (numSeconds < this.delay) {
+  		// dont do nothing
+  		this.x = -50;
+  		this.y = -50;
+  	} else {
+	  	// move anti-sperm element in random manner thruout the canvas
+		this.x += this.xVelocity;
+	    this.y += this.yVelocity;
+
+	    // take care of edge collisions
+	    if (this.x + this.diameter / 2 > width) {
+	      this.x = width - this.diameter / 2;
+	      this.xVelocity *= -1;
+	    } else if (this.x - this.diameter / 2 < 0) {
+	      this.x = this.diameter / 2;
+	      this.xVelocity *= -1;
+	    }
+	    if (this.y + this.diameter / 2 > height) {
+	      this.y = height - this.diameter / 2;
+	      this.yVelocity *= -1;
+	    } else if (this.y < 0) {
+	      this.y = this.diameter / 2;
+	      this.yVelocity *= -1;
+	    }
+	}
+
+  }
+
+  display() {
+  	// show sperm cell
+  	if (numSeconds < this.delay) {
+  		// dont do nothing
+  	} else {
+	  	image(this.img, this.x, this.y, 100, 100); 	
+  	}
+  }
+
+}
+
+
+
+// give class an attribute name,
+// make array of images, or names, (or just reuse image name)
+//  
