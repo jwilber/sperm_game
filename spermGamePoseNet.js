@@ -1,59 +1,74 @@
-
+// init vars
 let x, y;
 let facePosition = '';
 let spring = 0.025;
 let mainSperm;
-let sperm;
 let spermObjects = [];
-let antiSpermObjects = [];
 let spermArray = [];
-let condoms;
 let video;
 let ready = false;
-let numImgs = 200;
+let numSpermCells = 500;
 let numSeconds;
 let prevNumSeconds = 0;
+let w, h;
+let numDeadSpermCells;
+let birthControlObjects;
+let addedMore;
 
-let w,h;
 
-function preload() {
+// load images before running game
+preload = () => {
 	sperm = loadImage('newsperm2.png');
-	condoms = loadImage('900.jpg');
+	condoms = loadImage('condom.png');
+	magnums = loadImage('magnums.png');
+	iud = loadImage('iud.png');
+	planb = loadImage('planb.png');
+	bc_pills = loadImage('birthcontrol_pills.png');
+	spermicide = loadImage('spermicide.png');
 }
 
-function runGame() {
+const runGame = () => {
+	//reset dead sperm cell count
+	numDeadSpermCells = 0;
+
+	addedMore = false;
+
 	// main sperm image
-	spermArray = duplicateElements([sperm], numImgs);
-	for (let i = 0; i < numImgs; i++) {
-          spermObjects[i] = new SpermCell(
-            spermArray[i],
-            random(width),
-            random(height),
-            i,
-            spermObjects,
-            antiSpermObjects
-          );
-    };
-    // condom image
-    antiSpermObjects[0] = new BirthControl(
-            condoms,
-            0,
-            0,
-            1,
-            antiSpermObjects,
-            2	
-    	)
+	spermArray = duplicateElements([sperm], numSpermCells);
 
+  let delayTimes = [4, 8, 12, 14, 16, 20];
+  delayTimes = shuffle(delayTimes);
 
+  birthControlObjects = [
+		new BirthControl(condoms, 200, 0, birthControlObjects, delayTimes[0], 60, 140),
+		new BirthControl(magnums, w, h, birthControlObjects, delayTimes[1], 120, 120),
+		new BirthControl(iud, 0, 0, birthControlObjects, delayTimes[2], 100, 120),
+		new BirthControl(planb, 100, 100, birthControlObjects, delayTimes[3], 45, 45),
+		new BirthControl(bc_pills, 200, 200, birthControlObjects, delayTimes[4], 45, 100),
+		new BirthControl(spermicide, 0, 0, birthControlObjects, delayTimes[5], 140, 75)
+	];
 
-    // load main image after so it's on top
-    mainSperm = loadImage('newsperm.png');	
-	// video.hide();
+	// shuffle array so birth control elements show in different order each game
+	birthControlObjects = shuffle(birthControlObjects);
+
+	for (let i = 0; i < numSpermCells; i++) {
+    spermObjects[i] = new SpermCell(
+      spermArray[i],
+      random(width),
+      random(height),
+      i,
+      spermObjects,
+      birthControlObjects
+    );
+  };
+
+  // load cursor at middle of screen
+  mainSperm = loadImage('newsperm.png');	
 	x = width / 2;
 	y = height / 2;
 }
 
-function setup() {
+setup = () => {
 	w = (windowWidth / 2) * .95;
 	h = windowHeight * .75;
 	let gameCanvas = createCanvas(w, h);
@@ -62,7 +77,7 @@ function setup() {
 	video = createCapture(VIDEO);
 	video.size(w*.75, h*.75);
 	video.parent('video-container');
-	// video.hide();
+	video.hide();
 
 	poseNet = ml5.poseNet(video, modelReady);
 	poseNet.on('pose', gotPoses)
@@ -75,7 +90,7 @@ function modelReady() {
 }
 
 
-function gotPoses(poses) {
+const gotPoses = (poses) => {
   if (poses.length > 0) {
     nose = poses[0].pose.keypoints[0].position;
     leftEye = poses[0].pose.keypoints[1].position;
@@ -92,22 +107,52 @@ function gotPoses(poses) {
       facePosition = 'up';
     }
   }
-  console.log(facePosition);
+  // console.log(facePosition);
 }
 
+const victory = (numDeadSpermCells) => {
+	if (numDeadSpermCells == numSpermCells) {
+		alert('Victory!');
+		prevNumSeconds += numSeconds;
+		runGame();
+	}
+}
 
-function draw() {
+draw = () => {
 	background('#ffecef');
+
+	// decrement canvas time for game restarts
+	numSeconds = (frameCount / 30) - prevNumSeconds;
+
+  //check victory conditions
+	victory(numDeadSpermCells);
 	spermObjects.forEach(obj => {
-        obj.collide();
-        obj.move();
-        obj.display();
-      });
-	antiSpermObjects.forEach(obj => {
+    obj.collide();
+    obj.move();
+    obj.display();
+  });
+	birthControlObjects.forEach(obj => {
 		obj.move();
 		obj.display();
 	})
-	numSeconds = (frameCount / 30) - prevNumSeconds;
+
+
+	// add more sperm cells at ~25 seconds
+	if (numSeconds > 24 && numSeconds < 26 && addedMore === false) {
+		console.log('adding more sperm');
+		addedMore = true;
+		numDeadSpermCells = 0
+		for (let i = 0; i < numSpermCells; i++) {
+    spermObjects[i] = new SpermCell(
+      spermArray[i],
+      random(width),
+      random(height),
+      i,
+      spermObjects,
+      birthControlObjects
+    );
+  };
+	}
 
 	image(mainSperm, x, y, 40, 80);
 
@@ -117,9 +162,9 @@ function draw() {
 			x = x - 4;
 		}
 	} else if (facePosition == 'right') {
-		  if (x < width - 40) {
-				x = x + 4;
-		  }
+	  if (x < width - 40) {
+			x = x + 4;
+	  }
 	} else if (facePosition == 'up') {
 		if (y > 0) {
 			y = y - 4;
@@ -128,7 +173,6 @@ function draw() {
 		if (y < height - 55) {
 			y = y + 4;
 		}
-
 	}
 
 	// keyboard commands
@@ -151,21 +195,22 @@ function draw() {
 	}
 
   // handle birth control overlap case
-    for (let i = 0; i < antiSpermObjects.length; i++) {
+    for (let i = 0; i < birthControlObjects.length; i++) {
       // get distance from this node to all oters
 
-      let dx = antiSpermObjects[i].x - x;
-      let dy = antiSpermObjects[i].y - y;
+      let dx = birthControlObjects[i].x - x;
+      let dy = birthControlObjects[i].y - y;
       let distance = sqrt(dx * dx + dy * dy);
 
       // set distance threshold
-      let minDist = antiSpermObjects[i].diameter;
+      let minDist = birthControlObjects[i].diameter;
 
-      // if collision, bounce off each other
+      // if killed, display message and end game
       if (distance < minDist) {
       	alert('Looks like you were wiped out by the birth control :( <br /><br /> Better luck next time!')
       	// log time so we can accurately reset game w/o browse refresh
       	prevNumSeconds += numSeconds;
+      	// restart game
       	runGame();
       }
     }
@@ -175,7 +220,7 @@ function draw() {
 class SpermCell {
 
   // set attributes
-  constructor(img, xIndex, yIndex, index, others, bc) {
+  constructor(img, xIndex, yIndex, index, others, birthControls) {
     this.img = img;
     this.x = xIndex;
     this.y = yIndex;
@@ -184,7 +229,7 @@ class SpermCell {
     this.diameter = 25;
     this.id = index;
     this.others = others;
-    this.bc = bc;
+    this.birthControls = birthControls;
     this.dead = false;
   }
 
@@ -193,7 +238,7 @@ class SpermCell {
   		// do nothing
   	} else {
   		// handle sperm overlap case
-	    for (let i = this.id + 1; i < numImgs; i++) {
+	    for (let i = this.id + 1; i < numSpermCells; i++) {
 	      // get distance from this node to all oters
 
 	      let dx = this.others[i].x - this.x;
@@ -218,15 +263,15 @@ class SpermCell {
 	      }
 	    }
 	    // handle birth control overlap case
-	    for (let i = 0; i < antiSpermObjects.length; i++) {
+	    for (let i = 0; i < this.birthControls.length; i++) {
 	      // get distance from this node to all oters
 
-	      let dx = this.bc[i].x - this.x;
-	      let dy = this.bc[i].y - this.y;
+	      let dx = this.birthControls[i].x - this.x;
+	      let dy = this.birthControls[i].y - this.y;
 	      let distance = sqrt(dx * dx + dy * dy);
 
 	      // set distance threshold
-	      let minDist = this.bc[i].diameter;
+	      let minDist = this.birthControls[i].diameter;
 
 	      // if collision, bounce off each other
 	      if (distance < minDist) {
@@ -240,6 +285,9 @@ class SpermCell {
 	        this.others[i].xVelocity += ax;
 	        this.others[i].yVelocity += ay;
 	        this.dead = true;
+	        // incrememnt dead cell count
+	        numDeadSpermCells ++;
+	        console.log(numDeadSpermCells);
 	      }
 	    }
   	}
@@ -252,7 +300,7 @@ class SpermCell {
     	// this.x = 0;
     	// this.y = 0;
     } else {
-		this.x += this.xVelocity;
+			this.x += this.xVelocity;
 	    this.y += this.yVelocity;
 
 	    // take care of edge collisions
@@ -284,8 +332,9 @@ class SpermCell {
 }
 
 class BirthControl {
+
   // set attributes
-  constructor(img, xIndex, yIndex, index, others, delay) {
+  constructor(img, xIndex, yIndex, others, delay, width, height) {
     this.img = img;
     this.x = xIndex;
     this.y = yIndex;
@@ -293,7 +342,8 @@ class BirthControl {
     this.yVelocity = 1.5;
     this.diameter = 25;
     this.delay = delay;
-    this.id = index;
+    this.width = width;
+    this.height = height;
     this.others = others;
     this.dead = false;
   }
@@ -303,16 +353,15 @@ class BirthControl {
   }
 
   move() {
+  	// dont spawn birth-control unil this.delay seconds
   	if (numSeconds < this.delay) {
-  		// dont do nothing
-  		this.x = -50;
+  		this.x = random(width);
   		this.y = -50;
-  	} else {
-	  	// move anti-sperm element in random manner thruout the canvas
-		this.x += this.xVelocity;
+  	} else { // move anti-sperm element in random manner thruout the canvas
+			this.x += this.xVelocity;
 	    this.y += this.yVelocity;
 
-	    // take care of edge collisions
+	    // handle edge collisions
 	    if (this.x + this.diameter / 2 > width) {
 	      this.x = width - this.diameter / 2;
 	      this.xVelocity *= -1;
@@ -327,23 +376,16 @@ class BirthControl {
 	      this.y = this.diameter / 2;
 	      this.yVelocity *= -1;
 	    }
-	}
-
+		}
   }
 
   display() {
-  	// show sperm cell
+  	// don't show sperm cell after this.delay time
   	if (numSeconds < this.delay) {
   		// dont do nothing
   	} else {
-	  	image(this.img, this.x, this.y, 100, 100); 	
+	  	image(this.img, this.x, this.y, this.width, this.height); 	//140, 75
   	}
   }
 
 }
-
-
-
-// give class an attribute name,
-// make array of images, or names, (or just reuse image name)
-//  
