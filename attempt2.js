@@ -1,6 +1,6 @@
 // init vars
 let x, y;
-let facePosition = '';
+let facePosition;
 let spring = 0.025;
 let mainSperm;
 let spermObjects = [];
@@ -19,6 +19,13 @@ let modelLoaded = false;
 let initLeftEye, initRightEye, initNose;
 let nose, leftEye, rightEye;
 let labelP;
+
+// Determine direction for movement based on webcam value
+findDirection = (arr, val) => {
+	diffs = arr.map(e => Math.abs(e - val));
+	maxDiff = diffs.indexOf(Math.max(...diffs));
+	return ['positive', 'negative'][maxDiff]
+}
 
 // load images before running game
 preload = () => {
@@ -42,13 +49,13 @@ const runGame = () => {
 	addedMore = false;
 
   // default label
-  labelP.html('Loading model for webcam directions...')
+  labelP.html('Loading model to allow webcam-based control...')
 
 	// main sperm image
 	spermArray = duplicateElements([sperm], numSpermCells);
 
   // create array of time delays for birth control appearances
-  let delayTimes = [6, 12, 18, 24, 30, 36];
+  let delayTimes = [6, 10, 16, 20, 26, 30];
   delayTimes = shuffle(delayTimes);
 
   birthControlObjects = [
@@ -81,18 +88,18 @@ const runGame = () => {
 }
 
 setup = () => {
-	w = (windowWidth / 2) * .95;
-	h = windowHeight * .75;
+	w = (windowWidth / 1.7) * .95;
+	h = windowHeight * .85;
 	let gameCanvas = createCanvas(w, h);
 	gameCanvas.parent("game-container");
 	frameRate(30);
 	video = createCapture(VIDEO);
-	video.size(75, 75);
+	video.size(w*.75, h*.75);
 	video.parent('video-container');
 	video.hide();
 	labelP = createP('Get Ready!');
-  labelP.style('font-size', '1rem');
-  labelP.parent('text-container')
+    labelP.style('font-size', '1rem');
+    labelP.parent('text-container')
 
 	poseNet = ml5.poseNet(video, modelReady);
 	poseNet.on('pose', gotPoses)
@@ -101,7 +108,7 @@ setup = () => {
 }
 
 function modelReady() {
-	console.log('model ready ;)')
+	console.log('model loaded ;)')
 	labelP.html('Model loaded, get ready!')
 }
 
@@ -113,19 +120,44 @@ const gotPoses = (poses) => {
     rightEye = poses[0].pose.keypoints[2].position;
     noseX = nose.x;
     noseY = nose.y;
-    if (noseX < w * .25) {
-      facePosition = 'left';
-    } else if (noseX > w * .75) {
-      facePosition = 'right';
-    } else if (noseY > h * .75) {
-      facePosition = 'down';
-    } else if (noseY < h * .25) {
-      facePosition = 'up';
+
+    // if set init values, use them for directions
+    if (firstView === false) {
+
+    	// determine which direction to send face
+    	xDifference = Math.abs(noseX - initNose.x);
+    	yDifference = Math.abs(noseY - initNose.y);
+
+    	if (xDifference > yDifference) {
+    		// find which X-direction to move in
+    		if (noseX - initNose.x < 0) {
+    			facePosition = 'right'
+    		} else {
+    			facePosition = 'left'
+    		}
+    	} else {
+    		if (noseY - initNose.y > 0) {
+    			facePosition = 'down'
+    		} else {
+    			facePosition = 'up'
+    		}
+    	}
+
+    } else if (firstView === true) {
+    	// dont try to track movement yet
     }
+    // if (noseX < w * .25) {
+    //   facePosition = 'left';
+    // } else if (noseX > w * .75) {
+    //   facePosition = 'right';
+    // } else if (noseY > h * .75) {
+    //   facePosition = 'down';
+    // } else if (noseY < h * .25) {
+    //   facePosition = 'up';
+    // }
   }
 
   modelLoaded = true;
-  // console.log(facePosition);
 }
 
 const victory = (numDeadSpermCells) => {
@@ -141,12 +173,10 @@ draw = () => {
 
 	// decrement canvas time for game restarts
 	numSeconds = (frameCount / 30) - prevNumSeconds;
-	if (firstView === true && modelLoaded === true) {
-		console.log('lefteye', leftEye)
-		// initLeftEye = leftEye;
-		// initRightEye = rightEye;
-		// initNose = nose;
-		console.log('tracekd values');
+	if (firstView === true && modelLoaded === true && leftEye) {
+		initLeftEye = leftEye;
+		initRightEye = rightEye;
+		initNose = nose;
 		firstView = false;
 	}
 
@@ -165,7 +195,6 @@ draw = () => {
 
 	// add more sperm cells at ~25 seconds
 	if (numSeconds > 24 && numSeconds < 26 && addedMore === false) {
-		console.log('adding more sperm');
 		addedMore = true;
 		numDeadSpermCells = 0
 		for (let i = 0; i < numSpermCells; i++) {
@@ -185,19 +214,19 @@ draw = () => {
 	// Face Movement Directions (using PoseNet)
 	if (facePosition == 'left') {
 		if (x > 0) {
-			x = x - 4;
+			x = x - 8;
 		}
 	} else if (facePosition == 'right') {
 	  if (x < width - 40) {
-			x = x + 4;
+			x = x + 8;
 	  }
 	} else if (facePosition == 'up') {
 		if (y > 0) {
-			y = y - 4;
+			y = y - 8;
 		}
 	} else if (facePosition == 'down') {
 		if (y < height - 55) {
-			y = y + 4;
+			y = y + 8;
 		}
 	}
 
@@ -240,16 +269,6 @@ draw = () => {
       	runGame();
       }
     }
-
-    //webcam stuff
-    // image(video, 0, 0);
-    // console.log(leftEye)
-    // if (leftEye) {
-	   //  ellipse(leftEye.x, leftEye.y, 20);    	
-	   //  ellipse(rightEye.x, rightEye.y, 20);    	
-	   //  ellipse(noseX, noseY, 40);    	
-    // }
-
 }
 
 class SpermCell {
@@ -322,7 +341,6 @@ class SpermCell {
 	        this.dead = true;
 	        // incrememnt dead cell count
 	        numDeadSpermCells ++;
-	        // console.log(numDeadSpermCells);
 	      }
 	    }
   	}
@@ -332,8 +350,6 @@ class SpermCell {
     // move 
     if (this.dead === true) {
     	// pass
-    	// this.x = 0;
-    	// this.y = 0;
     } else {
 			this.x += this.xVelocity;
 	    this.y += this.yVelocity;
