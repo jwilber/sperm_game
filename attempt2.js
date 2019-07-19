@@ -43,7 +43,7 @@ const runGame = () => {
 	addedMore = false;
 
   // default label
-  labelP.html('Loading model to allow webcam-based control...')
+  labelP.html('Loading PoseNet model...')
 
   // main sperm image
   spermArray = duplicateElements([sperm], numSpermCells);
