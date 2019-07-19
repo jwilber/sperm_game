@@ -23,13 +23,13 @@ let labelP;
 
 // load images before running game
 preload = () => {
-	sperm = loadImage('newsperm2.png');
-	condoms = loadImage('condom.png');
-	magnums = loadImage('magnums.png');
-	iud = loadImage('iud.png');
-	planb = loadImage('planb.png');
-	bc_pills = loadImage('birthcontrol_pills.png');
-	spermicide = loadImage('spermicide.png');
+	sperm = loadImage('artwork/newsperm2.png');
+	condoms = loadImage('artwork/condom.png');
+	magnums = loadImage('artwork/magnums.png');
+	iud = loadImage('artwork/iud.png');
+	planb = loadImage('artwork/planb.png');
+	bc_pills = loadImage('artwork/birthcontrol_pills.png');
+	spermicide = loadImage('artwork/spermicide.png');
 }
 
 const runGame = () => {
@@ -76,7 +76,7 @@ const runGame = () => {
   };
 
   // load cursor at middle of screen
-  mainSperm = loadImage('newsperm.png');	
+  mainSperm = loadImage('artwork/newsperm.png');	
 	x = width / 2;
 	y = height / 2;
 }
@@ -141,15 +141,6 @@ const gotPoses = (poses) => {
     } else if (firstView === true) {
     	// dont try to track movement yet
     }
-    // if (noseX < w * .25) {
-    //   facePosition = 'left';
-    // } else if (noseX > w * .75) {
-    //   facePosition = 'right';
-    // } else if (noseY > h * .75) {
-    //   facePosition = 'down';
-    // } else if (noseY < h * .25) {
-    //   facePosition = 'up';
-    // }
   }
 
   modelLoaded = true;
