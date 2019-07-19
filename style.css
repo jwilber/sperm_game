@@ -10,9 +10,11 @@ body {
 }
 
 h1 {
-	font-size: 1.5rem;
+	font-size: 1.75rem;
 	letter-spacing: 10px;
 	text-transform: uppercase;
+  margin-bottom: 0;
+  padding-bottom: 0;
 }
 
 p {
@@ -38,6 +40,7 @@ canvas {
   max-width: 100% !important;
   max-height: 100% !important;
   padding-right: 10px;
+  padding-top: 0;
 }
 
 .directions { 
@@ -51,7 +54,7 @@ canvas {
 }
 
 .thanks {
-	font-size: .85rem;
+	font-size: .75rem;
 	font-weight: 10;
 }
 
@@ -135,5 +138,15 @@ canvas {
    justify-content: center;
 }
 
-#video-container {
+#text-container {
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  /*border: 2px dotted red;*/
+  max-height: 150px;
+  margin-bottom: 0;
+}
+
+.bottom-link {
+  font-size: .9rem;
 }

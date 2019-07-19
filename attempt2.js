@@ -7,7 +7,7 @@ let spermObjects = [];
 let spermArray = [];
 let video;
 let ready = false;
-let numSpermCells = 120;
+let numSpermCells = 500;
 let numSeconds;
 let prevNumSeconds = 0;
 let w, h;
@@ -20,12 +20,6 @@ let initLeftEye, initRightEye, initNose;
 let nose, leftEye, rightEye;
 let labelP;
 
-// Determine direction for movement based on webcam value
-findDirection = (arr, val) => {
-	diffs = arr.map(e => Math.abs(e - val));
-	maxDiff = diffs.indexOf(Math.max(...diffs));
-	return ['positive', 'negative'][maxDiff]
-}
 
 // load images before running game
 preload = () => {
@@ -51,8 +45,8 @@ const runGame = () => {
   // default label
   labelP.html('Loading model to allow webcam-based control...')
 
-	// main sperm image
-	spermArray = duplicateElements([sperm], numSpermCells);
+  // main sperm image
+  spermArray = duplicateElements([sperm], numSpermCells);
 
   // create array of time delays for birth control appearances
   let delayTimes = [6, 10, 16, 20, 26, 30];
@@ -98,7 +92,8 @@ setup = () => {
 	video.parent('video-container');
 	video.hide();
 	labelP = createP('Get Ready!');
-    labelP.style('font-size', '1rem');
+    labelP.style('font-size', '1.2rem');
+    labelP.style('text-align', 'center');
     labelP.parent('text-container')
 
 	poseNet = ml5.poseNet(video, modelReady);
