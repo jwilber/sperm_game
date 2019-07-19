@@ -1,3 +1,11 @@
+
+// Determine direction for movement based on webcam value
+findDirection = (arr, val) => {
+  diffs = arr.map(e => Math.abs(e - val));
+  maxDiff = diffs.indexOf(Math.max(...diffs));
+  return ['positive', 'negative'][maxDiff]
+}
+
 // use to create n sperm cells
 const duplicateElements = (array, times) => {
   return array.reduce((result, current) => {
