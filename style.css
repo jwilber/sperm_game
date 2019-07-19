@@ -148,5 +148,27 @@ canvas {
 }
 
 .bottom-link {
-  font-size: .9rem;
+  font-size: 1rem;
+}
+
+button {
+    background:none!important;
+     border:none; 
+     font-size: 1rem;
+     padding:0!important;
+    /*optional*/
+    font-family: 'Gaegu';
+    text-transform: uppercase;
+    font-weight: bold; 
+   cursor:pointer;
+   text-decoration: underline;
+}
+button:hover{
+  font-size: 1.05rem;
+}
+
+#howto-text {
+  font-size: .95rem;
+  display: none;
+  max-width: 60%;
 }

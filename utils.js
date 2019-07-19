@@ -93,3 +93,18 @@ function createCustomAlert(txt) {
 function removeCustomAlert() {
   document.getElementsByTagName("body")[0].removeChild(document.getElementById("modalContainer"));
 }
+
+// hide/show "HOW IT WORKS" section 
+let firstLoad = true;
+revealHowTo = () => {
+  let x = document.getElementById("howto-text");
+  if (firstLoad === true) {
+    x.style.display = 'none';
+    firstLoad = false;
+  }
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}
